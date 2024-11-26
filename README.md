@@ -399,5 +399,3 @@ echo "检查代码..."
 npx commitlint --edit $1
 pnpm lint-staged
 ```
-
-/

@@ -391,13 +391,11 @@ module.exports = {
 };
 ```
 
-.husky/pre-commit 
+.husky/pre-commit
 需要改为
+
 ```sh
 echo "检查代码..."
 npx commitlint --edit $1
 pnpm lint-staged
 ```
-
-...
-

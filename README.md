@@ -399,3 +399,34 @@ echo "检查代码..."
 npx commitlint --edit $1
 pnpm lint-staged
 ```
+
+### mock
+
+安装依赖
+mockjs vite-plugin-mock
+
+```sh
+pnpm install -D mockjs vite-plugin-mock
+```
+
+**配置 element-plus**
+不要全部引入，要按需引入
+需要安装unplugin-vue-components 和 unplugin-auto-import这两款插件
+
+```sh
+pnpm install -D unplugin-vue-components unplugin-auto-import
+```
+
+手动导入，开箱即用 tree-shaking
+安装 unplugin-element-plus
+
+```sh
+pnpm install -D unplugin-element-plus
+```
+
+自动导入图标
+unplugin-icons 和 unplugin-auto-import 从 iconify 中自动导入任何图标集
+
+```sh
+pnpm install -D unplugin-icons
+```

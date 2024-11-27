@@ -2,6 +2,7 @@ import globals from 'globals';
 import jsConfig from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import vueParser from 'vue-eslint-parser';
 import vuePlugin from 'eslint-plugin-vue';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
@@ -27,9 +28,6 @@ export default [
 			// 启用 Prettier 检查作为 ESLint 规则
 			'prettier/prettier': 'error',
 
-			// 关闭与 Prettier 冲突的 ESLint 规则
-			...prettierConfig.rules,
-
 			// 通用规则
 			'@typescript-eslint/no-unused-vars': 'off',
 			indent: ['error', 4, { SwitchCase: 1 }],
@@ -53,16 +51,23 @@ export default [
 			'vue/require-v-for-key': 'off',
 			'vue/no-textarea-mustache': 'off',
 			'vue/no-v-html': 'off',
+
+			// 关闭与 Prettier 冲突的 ESLint 规则
+			...prettierConfig.rules,
+
+			'no-unused-vars': ['error', { argsIgnorePattern: '^_' }], // 允许以 _ 开头的未使用变量
+			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }], // 忽略以 _ 开头的变量
 		},
 	},
 	// Vue 单文件组件的特定配置
 	{
 		files: ['**/*.vue'],
 		languageOptions: {
+			parser: vueParser,
 			parserOptions: {
 				ecmaVersion: 'latest',
 				sourceType: 'module',
-				parser: tsParser, // 针对 <script setup lang="ts"> 使用 TypeScript 解析器
+				// parser: tsParser, // 针对 <script setup lang="ts"> 使用 TypeScript 解析器
 			},
 		},
 	},
@@ -84,6 +89,9 @@ export default [
 			'Dockerfile',
 			'.commitlintrc.js',
 			'eslint.config.mjs',
+			'.prettierrc.js',
+			'vite.config.ts',
+			'.stylelintrc.js',
 		],
 	},
 ];

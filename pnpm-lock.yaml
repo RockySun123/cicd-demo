@@ -94,7 +94,7 @@ importers:
         specifier: ^3.4.1
         version: 3.4.1
       stylelint:
-        specifier: ^16.10.0
+        specifier: 16.10.0
         version: 16.10.0(typescript@5.7.2)
       stylelint-config-html:
         specifier: ^1.1.0
@@ -103,7 +103,7 @@ importers:
         specifier: ^9.0.5
         version: 9.0.5(stylelint@16.10.0(typescript@5.7.2))
       stylelint-config-standard:
-        specifier: ^36.0.1
+        specifier: 36.0.1
         version: 36.0.1(stylelint@16.10.0(typescript@5.7.2))
       stylelint-config-standard-vue:
         specifier: ^1.0.0

@@ -14,6 +14,7 @@ module.exports = {
 	customSyntax: 'postcss-html',
 	plugins: ['stylelint-order'], // 启用排序插件
 	rules: {
+		'prettier/prettier': 'off',
 		// 属性排序规则
 		'order/properties-order': [
 			[
@@ -81,4 +82,5 @@ module.exports = {
 		// 禁止超过80字符的行长度（仅样式部分）
 		'line-length': [80, { ignore: ['comments'] }],
 	},
+	ignoreFiles: ['**/*.vue'],
 };

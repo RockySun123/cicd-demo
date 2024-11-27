@@ -4,3 +4,8 @@
 <script setup lang="ts">
 console.log('ok');
 </script>
+<style lang="less">
+h1 {
+	color: red;
+}
+</style>

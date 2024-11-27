@@ -7,14 +7,13 @@ module.exports = {
 		},
 	],
 	extends: [
+		'stylelint-config-standard',
 		'stylelint-config-standard-vue', // Vue 推荐配置
-		'stylelint-config-html', // HTML 支持
 		'stylelint-config-prettier', // 关闭与 Prettier 冲突的规则
 	],
+	customSyntax: 'postcss-html',
 	plugins: ['stylelint-order'], // 启用排序插件
 	rules: {
-		// 规则定义
-
 		// 属性排序规则
 		'order/properties-order': [
 			[

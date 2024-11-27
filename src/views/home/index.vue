@@ -1,7 +1,6 @@
 <template>
-	<div>home</div>
+	<h1>Home</h1>
 </template>
 <script setup lang="ts">
-console.log('ookoko');
+console.log('ok');
 </script>
-<style lang="less" scoped></style>

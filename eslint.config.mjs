@@ -33,6 +33,16 @@ export default [
 			indent: ['error', 4, { SwitchCase: 1 }],
 			'no-debugger': 'off',
 			semi: 'off',
+			'comma-dangle': [
+				'error',
+				{
+					arrays: 'always-multiline',
+					objects: 'always-multiline',
+					imports: 'always-multiline',
+					exports: 'always-multiline',
+					functions: 'never', // 函数参数不需要尾随逗号
+				},
+			],
 
 			// TypeScript 特定规则
 			'@typescript-eslint/no-var-requires': 'off',

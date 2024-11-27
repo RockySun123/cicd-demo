@@ -34,13 +34,13 @@ service.interceptors.request.use(
 service.interceptors.response.use(
 	(response: AxiosResponse) => {
 		if (response.status === 200) {
-			return response.data;
+			return response;
 		}
 		ElMessage({
 			message: getMessageInfo(response.status),
 			type: 'error',
 		});
-		return response.data;
+		return response;
 	},
 	//请求失败
 	(error: any) => {
@@ -66,13 +66,15 @@ const requestInstance = <T = any>(config: AxiosRequestConfig): Promise<T> => {
 	return new Promise((resolve, reject) => {
 		service.request<any, AxiosResponse<BaseResponse>>(conf).then((res: AxiosResponse<BaseResponse>) => {
 			const data = res.data; //如果data.code 为错误代码返回message信息
-			if (data.code != 0) {
+			if (data.code !== 0) {
+				console.log('error');
 				ElMessage({
 					message: data.message,
 					type: 'error',
 				});
 				reject(data.message);
 			} else {
+				console.log('success');
 				ElMessage({
 					message: data.message,
 					type: 'success',
@@ -88,11 +90,11 @@ export function get<T = any, U = any>(config: AxiosRequestConfig, url: string, p
 	return requestInstance({ ...config, url, method: 'GET', params: params });
 }
 
-export function post<T = any, U = any>(config: AxiosRequestConfig, url: string, params?: U): Promise<T> {
-	return requestInstance({ ...config, url, method: 'POST', params: params });
+export function post<T = any, U = any>(config: AxiosRequestConfig, url: string, data?: U): Promise<T> {
+	return requestInstance({ ...config, url, method: 'POST', data: data });
 }
-export function put<T = any, U = any>(config: AxiosRequestConfig, url: string, data: U): Promise<T> {
-	return requestInstance({ ...config, url, method: 'PUT', data: data });
+export function put<T = any, U = any>(config: AxiosRequestConfig, url: string, params: U): Promise<T> {
+	return requestInstance({ ...config, url, method: 'PUT', params: params });
 }
 export function del<T = any, U = any>(config: AxiosRequestConfig, url: string, data: U): Promise<T> {
 	return requestInstance({ ...config, url, method: 'DELETE', data: data });

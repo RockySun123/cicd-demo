@@ -44,11 +44,20 @@ const router = createRouter({
 	routes,
 });
 
+const noStatusPage = ['/login', '/about']; //不需要守卫的路由
 //路由守卫
 router.beforeEach(async (_to, _from, next) => {
 	//开始进度条
 	NProgress.start();
-	next();
+
+	//获取token
+	const token = sessionStorage.getItem('userInfo');
+	const userIsLogin = token ? true : false;
+	if (userIsLogin || noStatusPage.includes(_to.path)) {
+		next();
+	} else {
+		next('/login');
+	}
 });
 
 router.afterEach(async () => {

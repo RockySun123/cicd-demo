@@ -2,11 +2,11 @@ import { MockMethod } from 'vite-plugin-mock';
 
 export default [
 	{
-		url: '/mock/api/user',
+		url: '/mock/api/login',
 		method: 'post',
 		//body 可以获取请求体
 		response: ({ body }: any) => {
-			if (body.username !== body.password) {
+			if (body.username === body.password) {
 				return {
 					code: 1,
 					message: '用户名或密码错误',
@@ -24,7 +24,7 @@ export default [
 					message: '登录成功',
 					data: {
 						username: 'admin',
-						roles: ['admin'],
+						roles: ['common'],
 						accessToken: 'admin',
 					},
 				};

@@ -430,5 +430,3 @@ unplugin-icons 和 unplugin-auto-import 从 iconify 中自动导入任何图标�
 ```sh
 pnpm install -D unplugin-icons
 ```
-
-///

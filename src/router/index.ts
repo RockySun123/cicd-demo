@@ -3,18 +3,10 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import type { RouteRecordRaw } from 'vue-router';
-//配置路由
-// const routes: Array<RouteRecordRaw> = [
-//   {
-//     path: '/',
-//     name: 'home',
-//     component: () => import('../views/home/index.vue'),
-//     meta: {
-//       title: '首页',
-//     },
-//     children: [],
-//   },
-// ]
+import { useSettingStore } from '@/store/setting/index'
+import { getTitles } from '@/utils/index';
+
+const settingStore = useSettingStore()
 
 const aboutRouter = {
 	path: '/about',
@@ -44,6 +36,14 @@ const router = createRouter({
 	routes,
 });
 
+
+
+const handleRoutes = (currentName: string) => {
+	// console.log(currentName, router.getRoutes())
+	const titles = getTitles(currentName, router.getRoutes())
+	settingStore.setTitles(titles)
+}
+
 const noStatusPage = ['/login', '/about']; //不需要守卫的路由
 //路由守卫
 router.beforeEach(async (_to, _from, next) => {
@@ -58,6 +58,10 @@ router.beforeEach(async (_to, _from, next) => {
 	} else {
 		next('/login');
 	}
+
+	// console.log(_to)
+	//面包屑，获取路由信息
+	handleRoutes(_to.name as string)
 });
 
 router.afterEach(async () => {

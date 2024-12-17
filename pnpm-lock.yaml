@@ -48,6 +48,9 @@ importers:
       '@iconify-json/ep':
         specifier: ^1.2.1
         version: 1.2.1
+      '@types/mockjs':
+        specifier: ^1.0.10
+        version: 1.0.10
       '@types/node':
         specifier: ^22.10.0
         version: 22.10.0
@@ -767,6 +770,9 @@ packages:
 
   '@types/lodash@4.17.13':
     resolution: {integrity: sha512-lfx+dftrEZcdBPczf9d0Qv0x+j/rfNCMuC6OcfXmO8gkfeNAY88PgKUbvG56whcN23gc27yenwF6oJZXGFpYxg==}
+
+  '@types/mockjs@1.0.10':
+    resolution: {integrity: sha512-SXgrhajHG7boLv6oU93CcmdDm0HYRiceuz6b+7z+/2lCJPTWDv0V5YiwFHT2ejE4bQqgSXQiVPQYPWv7LGsK1g==}
 
   '@types/node@22.10.0':
     resolution: {integrity: sha512-XC70cRZVElFHfIUB40FgZOBbgJYFKKMa5nb9lxcwYstFG/Mi+/Y0bGS+rs6Dmhmkpq4pnNiLiuZAbc02YCOnmA==}
@@ -3334,6 +3340,8 @@ snapshots:
       '@types/lodash': 4.17.13
 
   '@types/lodash@4.17.13': {}
+
+  '@types/mockjs@1.0.10': {}
 
   '@types/node@22.10.0':
     dependencies:

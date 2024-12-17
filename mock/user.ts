@@ -1,4 +1,18 @@
 import { MockMethod } from 'vite-plugin-mock';
+import Mock from 'mockjs';
+import { roles } from './role';
+const userList = Mock.mock({
+	'list|20': [
+		{
+			'id|+1': 1,
+			nickName: '@cname',
+			userName: '@name',
+			role: () => {
+				return Mock.Random.shuffle(roles).slice(0, Mock.Random.integer(1, 2));
+			},
+		},
+	],
+});
 
 export default [
 	{
@@ -39,6 +53,18 @@ export default [
 					},
 				};
 			}
+		},
+	},
+	{
+		//获取用户列表
+		url: '/mock/api/users',
+		method: 'get',
+		response: () => {
+			return {
+				code: 0,
+				message: 'success',
+				data: userList.list,
+			};
 		},
 	},
 ] as MockMethod[];

@@ -1,4 +1,4 @@
-import { post } from '@/http/request';
+import service from '@/http/request';
 
 export type LoginRequest = {
 	username: string;
@@ -16,11 +16,25 @@ export type LoginResponse = {
 	accessToken: string;
 };
 
-//定义接口
 export const userLogin = async (data?: LoginRequest) => {
-	return post<LoginResponse>({}, '/login', data);
+	return service<LoginResponse>({
+		url: '/login',
+		method: 'post',
+		data,
+	}).then((res) => res.data);
 };
 
 export const refreshUserInfo = async (data?: reLoginRequest) => {
-	return post<LoginResponse>({}, '/getUserInfo', data);
+	return service<LoginResponse>({
+		url: '/getUserInfo',
+		method: 'post',
+		data,
+	}).then((res) => res.data);
+};
+
+export const getUserList = async () => {
+	return service({
+		url: '/users',
+		method: 'get',
+	}).then((res) => res.data);
 };

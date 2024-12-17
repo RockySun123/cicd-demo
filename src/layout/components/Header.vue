@@ -2,7 +2,11 @@
 	<div class="header">
 		<div class="flex-center">logo区域</div>
 		<div class="flex-grow"></div>
-		<div class="flex-center m05 color-dark-black"><i-ep-user></i-ep-user>{{ userStore.username }}</div>
+		<div class="flex-center m05 color-dark-black">
+			<el-tooltip class="box-item" effect="dark" :content="userStore.username"
+				><i-ep-user></i-ep-user
+			></el-tooltip>
+		</div>
 		<div class="flex-center m05 color-dark-black setting" @click="showSetting = true">
 			<i-ep-setting></i-ep-setting>
 		</div>

@@ -6,7 +6,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 //引入mock依赖
 import { viteMockServe } from 'vite-plugin-mock';
 //自动按需引入
-import AutooImport from 'unplugin-auto-import/vite';
+import AutoImport from 'unplugin-auto-import/vite';
 //element-plus 组件库
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 //引入icons
@@ -17,6 +17,9 @@ import ElementPlus from 'unplugin-element-plus/vite';
 import Components from 'unplugin-vue-components/vite';
 //图标按需引入
 import Icons from 'unplugin-icons/vite';
+
+// vite 开发环境基于 es6 打包
+// vite 生产环境基于 rollup 打包
 
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 	//获取当前工作目录
@@ -31,6 +34,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 		base: '/',
 		publicDir: fileURLToPath(new URL('./public', import.meta.url)), //无需处理的静态资源位置
 		assetsInclude: fileURLToPath(new URL('./src/assets', import.meta.url)), //需要处理的静态资源位置
+
 		plugins: [
 			//vue 模版文件编译插件
 			vue(),
@@ -46,7 +50,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 			//开启 Element-plus 组件库，自动引入 css
 			ElementPlus({}),
 			//配置element-plus 自动引入组件
-			AutooImport({
+			AutoImport({
 				//对组件按需引入
 				resolvers: [ElementPlusResolver(), IconsResolver()],
 				//将生成的 .d.ts 放入指定目录下
@@ -57,6 +61,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 				resolvers: [ElementPlusResolver(), IconsResolver()],
 				//将注册的组件 生成的 .d.ts 放入指定目录下
 				dts: fileURLToPath(new URL('./types/components.d.ts', import.meta.url)),
+				dirs: [fileURLToPath(new URL('./src/components', import.meta.url))],
 			}),
 			Icons({
 				autoInstall: true, //是否自动安装
@@ -123,6 +128,16 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 			alias: {
 				'@': fileURLToPath(new URL('./src', import.meta.url)),
 				'#': fileURLToPath(new URL('./types', import.meta.url)),
+			},
+		},
+		//css 预处理
+		//引入less变量
+		css: {
+			preprocessorOptions: {
+				less: {
+					javascriptEnabled: true, //支持less的js功能
+					additionalData: `@import '@/styles/variable.less';`,
+				},
 			},
 		},
 	};

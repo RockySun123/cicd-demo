@@ -29,7 +29,6 @@ export default [
 			'prettier/prettier': 'error',
 
 			// 通用规则
-			'@typescript-eslint/no-unused-vars': 'off',
 			indent: ['error', 4, { SwitchCase: 1 }],
 			'no-debugger': 'off',
 			semi: 'off',
@@ -53,7 +52,7 @@ export default [
 			'vue/multi-word-component-names': [
 				'error',
 				{
-					ignores: ['index', 'Header'], // 忽略的组件名
+					ignores: ['index', 'Header', 'tag', 'index2'], // 忽略的组件名
 				},
 			],
 			'vue/no-unused-vars': 'off',
@@ -77,7 +76,7 @@ export default [
 			parserOptions: {
 				ecmaVersion: 'latest',
 				sourceType: 'module',
-				// parser: tsParser, // 针对 <script setup lang="ts"> 使用 TypeScript 解析器
+				parser: tsParser, // 针对 <script setup lang="ts"> 使用 TypeScript 解析器
 			},
 		},
 	},
@@ -98,10 +97,9 @@ export default [
 			'/bin',
 			'Dockerfile',
 			'.commitlintrc.js',
-			'eslint.config.mjs',
 			'.prettierrc.js',
-			'vite.config.ts',
 			'.stylelintrc.js',
+			'vite.config.ts',
 		],
 	},
 ];

@@ -430,3 +430,253 @@ unplugin-icons 和 unplugin-auto-import 从 iconify 中自动导入任何图标�
 ```sh
 pnpm install -D unplugin-icons
 ```
+
+# 打包优化
+
+### vite 开发环境是 es6 打包，生产环境是 rollup 打包
+
+**默认打包文件过多**
+rollup 将每个模块文件都打包成一个单独的js文件，包括css文件，不会对chunk进行合并
+
+**问题：导致加载时将过长，影响首屏加载**
+
+- 同域名下，网络请求数量会有限制，比如一次批量6个请求，必须要请求资源释放才会进行新的请求，总体加载时间更长，
+  其中过多的css文件，也会阻塞html的渲染
+- 老版本vite 2.8之前，配合的rollup版本是3.5以下的，策略很简单，就是可以将第三方库打包为 vendor.js
+  项目中的文件打包为一个单独的文件比如 bundle.js
+    1. vendor.js，bundle.js 文件体积过大，影响首屏加载
+    2. 有可能用户不会访问的模块，也会打包到 bundle.js 文件中，也影响首屏加载时间
+    3. 更改某一个模块，bundle重新打包，会改变 bundle hansh值，影响用户缓存文件
+
+```ts
+//vite v2.8, 配置 build.rollupOptions.output.manualChunks 来自定义 chunk 分割策略
+export default defineConfig({
+	//...
+	build: {
+		output: {
+			manualChunks(id) {
+				if (id.includes('node_modules')) {
+					return 'vendor';
+				} else {
+					return 'bundle';
+				}
+			},
+		},
+	},
+	//...
+});
+```
+
+**优化方案：**
+监控分析vite 打包后的文件
+rollup-plugin-visualizer
+
+```sh
+pnpm install -D rollup-plugin-visualizer
+```
+
+vite 配置
+
+```ts
+import { visualizer } from 'rollup-plugin-visualizer';
+
+export default defineConfig({
+	//...
+	build: {
+		rollupOptions: {
+			plugins: [visualizer({ open: true })],
+			output: {
+				//...
+			},
+		},
+	},
+	//...
+});
+```
+
+**最终方案**
+类似webpack 方案：
+
+- webpack splitChunks.minSize 设置最小文件阈值，低于阈值的chunk文件则合并，否则打包为单独的文件
+
+vite 中，rollup 3.3 版本以上，设置 output.experimentalMinChunkSize 最小chunk文件大小，低于阈值的chunk文件则合并
+
+```ts
+export default defineConfig({
+	//...
+	build: {
+		rollupOptions: {
+			experimentalLogSideEffects: true, //检查文件是否有副作用，发现副作用会打印到控制台
+			output: {
+				experimentalMinChunkSize: 20 * 1024, //最小chunk阈值 20kb
+			},
+		},
+	},
+	//...
+});
+```
+
+**注意 vite 版本和 rollup 版本是否支持 experimentalMinChunkSize**
+可以查看当前vite版本和rollup版本是否支持 experimentalMinChunkSize
+
+- node_modules/vite/package.json 查看rollup 是否低于 3.3版本，低于则升级 vite 版本
+- 只有文件没有改变入口加载时执行副作用才会合并，所以配合 experimentalLogSideEffects: true 检查
+
+综上，vite 目前还是对 有副作用的模块，会单独打包成一个文件，无法合并
+
+- 配合 rollup 的 treeshake配置，是否除屑优化（tree-shaking）,并微调优化过程
+    - treeshake 预设默认为false，生成更大的bundle，但可能提高构建性能
+    - 预设值也可以为 'smallest' | 'safest' | 'recommended'
+      smallest: 尽可能小的bundle，但可能增加构建时间,尽可能减小代码提及，但可能会删除第三方代码
+      safest: 最小的bundle，但可能增加构建时间
+      recommended: 推荐，默认值
+
+```ts
+export default defineConfig({
+	build: {
+		rollupOptions: {
+			treeshake: {
+				preset: 'recommended',
+			},
+		},
+	},
+});
+```
+
+**对于不许要打包的文件**
+比如 jQuery,lodash,moment 等，可以使用外链的形式打包，避免打包到 bundle.js 文件中
+
+使用 rollup-plugin-external 插件
+
+```sh
+pnpm install -D rollup-plugin-external-globals
+```
+
+vite.config.ts
+
+```ts
+import externalGlobals from 'rollup-plugin-external-globals';
+
+const globals = {
+	jquery: 'jquery',
+	lodash: 'lodash',
+	moment: 'moment',
+};
+
+export default defineConfig({
+	//...
+	build: {
+		//...
+		rollupOptions: {
+			external: ['jquery', 'lodash', 'moment'],
+			plugins: [/*...,*/ globals],
+		},
+	},
+	//...
+});
+```
+
+html中，类似cdn形式引入
+
+```html
+<script src="http://cdn/xxxxx/jquery.min.js"></script>
+<script src="http://cdn/xxxxx/lodash.min.js"></script>
+<script src="http://cdn/xxxxx/moment.min.js"></script>
+```
+
+或者通过注入html插件 vite-plugin-html
+
+```sh
+pnpm install -D vite-plugin-html
+```
+
+```ts
+import { createHtmlPlugin } from 'vite-plugin-html';
+export default defineConfig({
+	plugins: [
+		createHtmlPlugin({
+			inject: {
+				//注入cdn 链接
+				tags: [
+					{
+						tag: 'script',
+						attrs: {
+							src: 'https://code.jquery.com/jquery-3.7.1.min.js',
+							deder: true,
+						},
+						injectTo: 'body',
+					},
+					{
+						tag: 'script',
+						attrs: {
+							src: 'https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js',
+							deder: true,
+						},
+						injectTo: 'body',
+					},
+					{
+						tag: 'script',
+						attrs: {
+							src: 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js',
+							deder: true,
+						},
+						injectTo: 'body',
+					},
+				],
+			},
+		}),
+	],
+});
+```
+
+**代码压缩**
+gzip 压缩 vite-plugin-compression
+brotli 压缩 rollup-plugin-brotli
+
+```sh
+pnpm install -D vite-plugin-compression
+```
+
+或
+
+```sh
+pnpm install -D rollup-plugin-brotli
+```
+
+gzip配置
+
+```ts
+import ViteCompression from 'vite-plugin-compression';
+export default defineConfig({
+	plugins: [
+		ViteCompression({
+			threshold: 1024 * 20, //大于20kb的才会被压缩
+			algorithm: 'gzip', //压缩算法
+			ext: 'gz', //压缩文件后缀
+		}),
+	],
+});
+```
+
+brotli 配置
+
+```ts
+import Brotli from 'rollup-plugin-brotli';
+export default defineConfig({
+	plugins: [
+		Brotli({
+			threshold: 1024 * 20, //大于20kb的才会被压缩
+			quality: 5, //压缩等级
+		}),
+	],
+});
+```
+
+**关于打包文件的hash值**
+文件有变化，hash值会改变，文件没有变化，hash值不会改变
+可以指定hash长度
+比如
+
+```ts
+entryFileNames: 'static/js/entry-[hash:8].js',//入口文件名
+```

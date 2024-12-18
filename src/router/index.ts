@@ -59,7 +59,6 @@ router.beforeEach(async (_to, _from, next) => {
 		next('/login');
 	}
 
-	// console.log(_to)
 	//面包屑，获取路由信息
 	handleRoutes(_to.name as string)
 });

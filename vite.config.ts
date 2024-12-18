@@ -17,6 +17,24 @@ import ElementPlus from 'unplugin-element-plus/vite';
 import Components from 'unplugin-vue-components/vite';
 //图标按需引入
 import Icons from 'unplugin-icons/vite';
+//构建分析
+import { visualizer } from 'rollup-plugin-visualizer'
+//gzip压缩
+// import ViteCompression from 'vite-plugin-compression';
+//brotli压缩
+//@ts-ignore
+import BrotliPlugin from 'rollup-plugin-brotli';
+//动态注入cnd
+import { createHtmlPlugin } from 'vite-plugin-html'
+//外链形式
+import externalGlobals from 'rollup-plugin-external-globals'
+
+
+const globals = externalGlobals({
+	jquery: 'jquery',
+	lodash: 'lodash',
+	moment: 'moment'
+})
 
 // vite 开发环境基于 es6 打包
 // vite 生产环境基于 rollup 打包
@@ -66,6 +84,45 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 			Icons({
 				autoInstall: true, //是否自动安装
 			}),
+			//gzip压缩
+			// ViteCompression({
+			// 	threshold: 1024 * 20, //大于20kb的才会压缩
+			// 	algorithm: 'gzip',//压缩算法,
+			// 	ext: '.gz', //压缩后缀
+			// }),
+
+			//brotli压缩
+			BrotliPlugin({
+				//大于20kb的才会压缩
+				threshold: 1024 * 20,
+			}),
+			createHtmlPlugin({
+				inject: {
+					tags: [
+						{
+							tag: 'script',
+							attrs: {
+								src: 'https://code.jquery.com/jquery-3.7.1.min.js',
+								defer: true
+							},
+						},
+						{
+							tag: 'script',
+							attrs: {
+								src: 'https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js',
+								defer: true
+							},
+						},
+						{
+							tag: 'script',
+							attrs: {
+								src: 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js',
+								defer: true
+							},
+						}
+					]
+				}
+			})
 		],
 		//运行后本地预览的服务器
 		server: {
@@ -107,21 +164,51 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 			//关闭 sorcemap 报错不会映射到源码
 			sourcemap: false,
 			//打包大小超出 400ßkb 提示告警
-			chunkSizeWarningLimit: 400,
+			chunkSizeWarningLimit: 600,
 			rollupOptions: {
 				//打包入口文件，根目录下的 index.html
 				//也就是项目从哪个文件开始打包
 				input: {
 					index: fileURLToPath(new URL('./index.html', import.meta.url)),
 				},
+				experimentalLogSideEffects: false,//检查副作用
+				treeshake: {
+					preset: 'recommended',
+				},
+
+				//不需要打包的文件
+				external: ['jquery', 'lodash', 'moment'],
+				//构建分析
+				plugins: [visualizer({ open: true }), globals],
+
 				//静态资源分类打包
 				output: {
+
 					format: 'esm',
-					chunkFileNames: 'static/js/[name]-[hash].js',
-					entryFileNames: 'static/js/[name]-[hash].js',
-					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+					chunkFileNames: 'static/js/[name]-[hash].js',//代码分割后文件名
+					entryFileNames: 'static/js/[name]-[hash:6].js',//入口文件名
+					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',//静态资源文件名
+
+					//老版本打包处理chunk
+					manualChunks: (id) => {
+						console.log(id)
+						if (id.includes('node_modules')) {
+							if (id.includes('vue')) {
+								return 'vue'
+							} else if (id.includes('element-plus')) {
+								return 'element-plus'
+							} else {
+								return 'vender'//其他第三方库打包为一个 vender.js文件
+							}
+						}
+					},
+
+					experimentalMinChunkSize: 20 * 1024, //最小chunk大小，低于则合并chunk文件
+
 				},
+
 			},
+
 		},
 		//配置别名
 		resolve: {

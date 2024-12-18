@@ -14,3 +14,7 @@ export const getTitles = (name: string, routes: Array<RouteRecordRaw>) => {
     }
     return names.reverse()
 }
+
+export const add = (a: number, b: number): number => {
+    return a + b
+}

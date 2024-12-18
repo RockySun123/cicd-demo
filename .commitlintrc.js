@@ -39,10 +39,10 @@ module.exports = {
 				'revert', // 回滚
 			],
 		],
-		// 'subject-case': [
-		// 	2,
-		// 	'never',
-		// 	['sentence-case', 'start-case', 'pascal-case', 'upper-case'], // 禁止特定格式
-		// ],
+		'subject-case': [
+			2,
+			'never',
+			['sentence-case', 'start-case', 'pascal-case', 'upper-case'], // 禁止特定格式
+		],
 	},
 };

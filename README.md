@@ -680,3 +680,76 @@ export default defineConfig({
 ```ts
 entryFileNames: 'static/js/entry-[hash:8].js',//入口文件名
 ```
+
+### 如何像 webpack 打包一样，将文件打包到指定目录？
+
+- 可以在vite.config.ts 中配置
+  build.output.manualChunks 中配置
+    ```ts
+    export default defineConfig({
+    	build: {
+    		output: {
+    			manualChunks: (id) => {
+    				if (id.includes('src/views/about')) {
+    					return 'about';
+    				}
+    				if (id.includes('src/views/auth')) {
+    					return 'about'; //与about 合并
+    				}
+    				if (id.includes('src/views/home')) {
+    					return 'home';
+    				}
+    			},
+    		},
+    	},
+    });
+    ```
+- 使用 vite-plugin-webpackchunkname 插件
+  也是更改 manualChunks 配置
+
+```sh
+pnpm install -D vite-plugin-webpackchunkname
+```
+
+vite.config.ts
+
+```ts
+import Components from 'unplugin-vue-components/vite';
+import { manualChunkPlugin } from 'vite-plugin-webpackchunkname';
+export default defineConfig({
+	plugins: [
+		Components({
+			resolvers: [ElementPlusResolver(), IconsResolver()],
+			dts: fileURLToPath('src/components.d.ts', import.meta.url),
+			include: [/\.vue$/, /\.vue\?/],
+		}),
+		manualChunkPlugin(),
+	],
+});
+```
+
+路由中
+
+```ts
+export default {
+	path: '/',
+	name: 'Home',
+	component: () => import(/* webpackChunkName: "home" */ '@/views/home.vue'),
+	meta:{
+		//...
+	}
+	children:[
+		{
+			path:'/',
+			name:'HomePage',
+			component:()=>import(/* webpackChunkName:"home" */'@/views/home/index.vue'),
+		},
+		{
+			path:'/about',
+			name:'About',
+			component:()=>import(/* webpackChunkName:"about" */'@/views/about.vue'),
+		}
+		//...
+	]
+};
+```

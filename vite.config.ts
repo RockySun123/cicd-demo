@@ -18,23 +18,24 @@ import Components from 'unplugin-vue-components/vite';
 //图标按需引入
 import Icons from 'unplugin-icons/vite';
 //构建分析
-import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer } from 'rollup-plugin-visualizer';
 //gzip压缩
 // import ViteCompression from 'vite-plugin-compression';
 //brotli压缩
 //@ts-ignore
 import BrotliPlugin from 'rollup-plugin-brotli';
 //动态注入cnd
-import { createHtmlPlugin } from 'vite-plugin-html'
+import { createHtmlPlugin } from 'vite-plugin-html';
 //外链形式
-import externalGlobals from 'rollup-plugin-external-globals'
-
+import externalGlobals from 'rollup-plugin-external-globals';
+//类似webpackchunname,指定文件打包合并
+import { manualChunksPlugin } from 'vite-plugin-webpackchunkname';
 
 const globals = externalGlobals({
 	jquery: 'jquery',
 	lodash: 'lodash',
-	moment: 'moment'
-})
+	moment: 'moment',
+});
 
 // vite 开发环境基于 es6 打包
 // vite 生产环境基于 rollup 打包
@@ -80,10 +81,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 				//将注册的组件 生成的 .d.ts 放入指定目录下
 				dts: fileURLToPath(new URL('./types/components.d.ts', import.meta.url)),
 				dirs: [fileURLToPath(new URL('./src/components', import.meta.url))],
+				include: [/\.vue$/, /\.vue\?/],
 			}),
 			Icons({
 				autoInstall: true, //是否自动安装
 			}),
+			manualChunksPlugin(),
 			//gzip压缩
 			// ViteCompression({
 			// 	threshold: 1024 * 20, //大于20kb的才会压缩
@@ -97,32 +100,33 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 				threshold: 1024 * 20,
 			}),
 			createHtmlPlugin({
+				//可能会导致 告警 commonjs 与 es 模块冲突
 				inject: {
 					tags: [
 						{
 							tag: 'script',
 							attrs: {
 								src: 'https://code.jquery.com/jquery-3.7.1.min.js',
-								defer: true
+								defer: true,
 							},
 						},
 						{
 							tag: 'script',
 							attrs: {
 								src: 'https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js',
-								defer: true
+								defer: true,
 							},
 						},
 						{
 							tag: 'script',
 							attrs: {
 								src: 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js',
-								defer: true
+								defer: true,
 							},
-						}
-					]
-				}
-			})
+						},
+					],
+				},
+			}),
 		],
 		//运行后本地预览的服务器
 		server: {
@@ -171,7 +175,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 				input: {
 					index: fileURLToPath(new URL('./index.html', import.meta.url)),
 				},
-				experimentalLogSideEffects: false,//检查副作用
+				experimentalLogSideEffects: false, //检查副作用
 				treeshake: {
 					preset: 'recommended',
 				},
@@ -183,32 +187,27 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 
 				//静态资源分类打包
 				output: {
-
 					format: 'esm',
-					chunkFileNames: 'static/js/[name]-[hash].js',//代码分割后文件名
-					entryFileNames: 'static/js/[name]-[hash:6].js',//入口文件名
-					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',//静态资源文件名
+					chunkFileNames: 'static/js/[name]-[hash].js', //代码分割后文件名
+					entryFileNames: 'static/js/[name]-[hash:6].js', //入口文件名
+					assetFileNames: 'static/[ext]/[name]-[hash].[ext]', //静态资源文件名
 
 					//老版本打包处理chunk
 					manualChunks: (id) => {
-						console.log(id)
 						if (id.includes('node_modules')) {
 							if (id.includes('vue')) {
-								return 'vue'
+								return 'vue';
 							} else if (id.includes('element-plus')) {
-								return 'element-plus'
+								return 'element-plus';
 							} else {
-								return 'vender'//其他第三方库打包为一个 vender.js文件
+								return 'vender'; //其他第三方库打包为一个 vender.js文件
 							}
 						}
 					},
 
 					experimentalMinChunkSize: 20 * 1024, //最小chunk大小，低于则合并chunk文件
-
 				},
-
 			},
-
 		},
 		//配置别名
 		resolve: {

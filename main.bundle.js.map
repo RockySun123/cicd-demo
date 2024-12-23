@@ -1,0 +1,1 @@
+{"version":3,"file":"main.bundle.js","mappings":"+FACaA,SAASC,eAAe,QAChCC,UAAY,sB","sources":["webpack://cicd-demo/./src/index.ts"],"sourcesContent":["\"use strict\";\nconst root = document.getElementById('root');\nroot.innerHTML = `<h1>Hello World</h1>`;\n"],"names":["document","getElementById","innerHTML"],"sourceRoot":""}

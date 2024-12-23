@@ -14,7 +14,7 @@ module.exports = (env) => {
             clean: true,
             path: path.resolve(__dirname, 'dist'),
             filename: 'bundle.js',
-            publicPath: '/',
+            publicPath: './',// 设置资源路径以 `./` 开头
             filename: '[name].bundle.js',
             assetModuleFilename: 'assets/[name].[hash].js',
         },

@@ -1,5 +1,5 @@
 const path = require("path");
-// const CopyPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 module.exports = (env) => {
   return {
@@ -49,18 +49,22 @@ module.exports = (env) => {
         scriptLoading: "defer",
         template: path.resolve(__dirname, "./public", "index.html"),
       }),
-      //   new CopyPlugin({
-      //     patterns: [
-      //       {
-      //         from: path.resolve(__dirname, "public"),
-      //         to: path.resolve(__dirname, "dist"),
-      //       },
-      //     ],
-      //   }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve(__dirname, "public"),
+            to: path.resolve(__dirname, "dist"),
+            globOptions: {
+              ignore: ["**/index.html"], // ⛔ 排除 index.html
+            },
+            noErrorOnMissing: true, // 如果 public 文件夹不存在也不报错（可选）
+          },
+        ],
+      }),
     ],
     devServer: {
       static: {
-        directory: path.join(__dirname, "public"),
+        directory: path.join(__dirname, "dist"),
       },
       compress: true,
       port: 9000,
